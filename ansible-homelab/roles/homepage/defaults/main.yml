@@ -6,7 +6,7 @@
 homepage_version: "latest"
 homepage_port: 3000
 homepage_config_path: /opt/homepage   # directory for config YAML files
-homepage_allowed_hosts: "home.internal.lrlilford.com,homepage.internal.lrlilford.com,{{ host_ip }}:{{ homepage_port }}"
+homepage_allowed_hosts: "home.lilford.au,homepage.lilford.au,{{ host_ip }}:{{ homepage_port }}"
 
 # ── Services displayed on the dashboard ──────────────────────────────────────
 # Each entry maps to a homepage "service group".  The list is consumed by
@@ -15,7 +15,7 @@ homepage_services:
   - name: Cameras
     icon: frigate.png
     description: Frigate NVR
-    href: "https://cameras.internal.lrlilford.com"
+    href: "https://cameras.lilford.au"
     widget:
       type: frigate
       url: "http://{{ hostvars['desktop-tower']['host_ip'] }}:{{ hostvars['desktop-tower']['frigate_web_port'] }}"
@@ -23,29 +23,29 @@ homepage_services:
   - name: Smart Home
     icon: home-assistant.png
     description: Home Assistant
-    href: "https://ha.internal.lrlilford.com"
+    href: "https://ha.lilford.au"
 
   - name: Photos
     icon: immich.png
     description: Immich photo management
-    href: "https://photos.internal.lrlilford.com"
+    href: "https://photos.lilford.au"
 
   - name: AdGuard
     icon: adguard-home.png
     description: AdGuard Home DNS
-    href: "https://adguard.internal.lrlilford.com"
+    href: "https://adguard.lilford.au"
 
   - name: Router
     icon: router.png
     description: Gateway Router
-    href: "https://router.internal.lrlilford.com"
+    href: "https://router.lilford.au"
 
   - name: Portainer
     icon: portainer.png
     description: Container management
-    href: "https://portainer.internal.lrlilford.com"
+    href: "https://portainer.lilford.au"
 
   - name: Prometheus
     icon: prometheus.png
     description: Metrics
-    href: "https://prometheus.internal.lrlilford.com"
+    href: "https://prometheus.lilford.au"

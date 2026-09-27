@@ -13,9 +13,9 @@
     }
 }
 
-# Single wildcard site block — Caddy issues one shared *.internal.lrlilford.com
+# Single wildcard site block — Caddy issues one shared *.lilford.au
 # cert and routes each hostname via @host named matchers.
-*.internal.lrlilford.com {
+*.lilford.au {
 
 {% for svc in caddy_services %}
     @{{ svc.hostname | replace('.', '_') }} host {{ svc.hostname }}

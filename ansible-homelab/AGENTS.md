@@ -119,19 +119,19 @@ Immich on `mini-server`. Downloads the official `docker-compose.yml` from GitHub
 Homepage application dashboard (`gethomepage/homepage`) on `mini-server`. Preconfigured with dashboard links and live widgets for Frigate NVR (on `desktop-tower`), Immich, Portainer, and Prometheus.
 
 ### `caddy`
-Custom Caddy build (with `caddy-dns/route53`) deployed via Docker Compose on `mini-server`. Issues a wildcard TLS cert for `*.internal.lrlilford.com` via Let's Encrypt DNS-01 challenge against Route53.
+Custom Caddy build (with `caddy-dns/route53`) deployed via Docker Compose on `mini-server`. Issues a wildcard TLS cert for `*.lilford.au` via Let's Encrypt DNS-01 challenge against Route53.
 
 **Adding a new proxied service:** append an entry to `caddy_services` in `roles/caddy/defaults/main.yml` (or override in `host_vars/mini-server.yml`), then re-run the playbook. Only the Caddyfile changes, so Caddy hot-reloads with no downtime.
 
 ```yaml
 caddy_services:
-  - hostname: cameras.internal.lrlilford.com
+  - hostname: cameras.lilford.au
     target_ip: 192.168.4.10
     target_port: 5000
-  - hostname: homepage.internal.lrlilford.com
+  - hostname: homepage.lilford.au
     target_ip: 192.168.4.239
     target_port: 3000
-  - hostname: grafana.internal.lrlilford.com   # example new entry
+  - hostname: grafana.lilford.au   # example new entry
     target_ip: 127.0.0.1
     target_port: 3000
 ```

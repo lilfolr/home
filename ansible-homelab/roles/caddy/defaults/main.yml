@@ -14,8 +14,8 @@ caddy_caddy_base_version: "2"          # base tag for the official caddy image
 caddy_xcaddy_version: "latest"         # xcaddy builder tag
 
 # ── TLS / ACME ───────────────────────────────────────────────────────────────
-caddy_acme_email: "admin@lrlilford.com"
-caddy_wildcard_domain: "*.internal.lrlilford.com"
+caddy_acme_email: "admin@lilford.au"
+caddy_wildcard_domain: "*.lilford.au"
 
 # ── Firewall ports ────────────────────────────────────────────────────────────
 caddy_http_port: 80
@@ -25,34 +25,34 @@ caddy_https_port: 443
 # List of dicts: { hostname, target_ip, target_port, override_host (optional) }
 # Add new services here and re-run the playbook — no other files need editing.
 caddy_services:
-  - hostname: cameras.internal.lrlilford.com
+  - hostname: cameras.lilford.au
     target_ip: 192.168.4.10
     target_port: 5000
-  - hostname: photos.internal.lrlilford.com
+  - hostname: photos.lilford.au
     target_ip: 192.168.4.239
     target_port: 2283
-  - hostname: homepage.internal.lrlilford.com
+  - hostname: homepage.lilford.au
     target_ip: 192.168.4.239
     target_port: 3000
-  - hostname: home.internal.lrlilford.com
+  - hostname: home.lilford.au
     target_ip: 192.168.4.239
     target_port: 3000
-  - hostname: ha.internal.lrlilford.com
+  - hostname: ha.lilford.au
     target_ip: 192.168.4.61
     target_port: 8123
-  - hostname: homeassistant.internal.lrlilford.com
+  - hostname: homeassistant.lilford.au
     target_ip: 192.168.4.61
     target_port: 8123
-  - hostname: adguard.internal.lrlilford.com
+  - hostname: adguard.lilford.au
     target_ip: 192.168.4.1
     target_port: 3000
-  - hostname: router.internal.lrlilford.com
+  - hostname: router.lilford.au
     target_ip: 192.168.4.1
     target_port: 80
     override_host: true
-  - hostname: portainer.internal.lrlilford.com
+  - hostname: portainer.lilford.au
     target_ip: 192.168.4.239
     target_port: 9000
-  - hostname: prometheus.internal.lrlilford.com
+  - hostname: prometheus.lilford.au
     target_ip: 192.168.4.239
     target_port: 9090

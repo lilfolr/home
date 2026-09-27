@@ -51,9 +51,9 @@ homepage_config_path: "/opt/homepage"
 # By default the role's defaults/main.yml list is used.
 #
 # caddy_services:
-#   - hostname: cameras.internal.lrlilford.com
+#   - hostname: cameras.lilford.au
 #     target_ip: 192.168.4.10
 #     target_port: 5000
-#   - hostname: grafana.internal.lrlilford.com
+#   - hostname: grafana.lilford.au
 #     target_ip: 127.0.0.1
 #     target_port: 3000

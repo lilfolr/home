@@ -1,0 +1,51 @@
+---
+# ansible-homelab/host_vars/desktop-tower.yml
+# Host-specific configuration for desktop-tower (Frigate NVR + InfluxDB)
+
+# ── Network ─────────────────────────────────────────────────────────────────
+# Used by Prometheus on mini-server to scrape this host's exporters
+host_ip: "192.168.4.10"
+
+# ── node_exporter / cAdvisor ports (override if needed) ─────────────────────
+node_exporter_port: 9100
+cadvisor_port: 8080
+
+# ── Frigate ──────────────────────────────────────────────────────────────────
+frigate_version: "0.17.0"
+frigate_media_path: "/mnt/frigate"          # recordings, clips, snapshots
+frigate_config_path: "/opt/frigate/config"  # frigate.yml lives here
+frigate_web_port: 5000
+frigate_rtsp_port: 8554
+
+# 100mb matches the default from your config; increase if you add more cameras.
+# Formula: (width * height * 1.5 * num_cameras) / 1048576 → round up to MB
+frigate_shm_size: "100mb"
+
+# 1GB tmpfs cache — reduces SSD wear during object detection clip writing
+frigate_tmpfs_size: 1000000000
+
+# Hardware passthrough
+# Intel GPU for hardware-accelerated decoding (renderD128)
+# Coral USB accelerator (/dev/bus/usb is mounted directly in the volumes block)
+frigate_devices:
+  - /dev/dri/renderD128     # Intel iGPU / dGPU hwaccel
+
+# privileged: true required for Coral USB + /dev/bus/usb access
+frigate_privileged: true
+
+# Camera credentials — password is vault_frigate_camera_password (see vault.yml)
+frigate_camera_username: "admin"
+
+# ── InfluxDB ─────────────────────────────────────────────────────────────────
+# Running v1.x — note /var/lib/influxdb (not influxdb2) inside the container.
+influxdb_version: "1.11"                         # latest stable v1.x
+influxdb_data_path: "/HDD/Projects/HA_Influx/data"  # bind-mount from your docker run
+influxdb_port: 8086
+influxdb_admin_port: 8083                        # v1-only admin web UI
+# Auth is disabled by default in v1 — uncomment INFLUXDB_HTTP_AUTH_ENABLED
+# in the compose template and set influxdb_admin_password in vault if you enable it.
+
+# ── Portainer Agent ───────────────────────────────────────────────────────────
+portainer_agent_version: "latest"
+portainer_agent_port: 9001
+

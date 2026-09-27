@@ -1,0 +1,16 @@
+---
+# roles/immich/defaults/main.yml
+
+immich_version: "release"             # pin to a tag like "v1.106.4" for stability
+immich_config_path: "/opt/immich"
+immich_db_username: "immich"
+immich_db_name: "immich"
+immich_db_data_path: "/var/lib/immich/postgres"
+immich_port: 2283
+
+# ── NAS / NFS ─────────────────────────────────────────────────────────────────
+immich_nas_host: "192.168.4.112"
+immich_nas_export: "/volume1/Pictures"
+immich_nas_mount_path: "/mnt/nas/pictures"
+immich_nas_mount_opts: "auto,nofail,noatime,nolock,intr,tcp,actimeo=1800"
+immich_upload_path: "{{ immich_nas_mount_path }}"

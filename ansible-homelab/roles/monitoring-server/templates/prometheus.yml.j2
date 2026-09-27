@@ -1,0 +1,34 @@
+# roles/monitoring-server/templates/prometheus.yml.j2
+# Managed by Ansible — do not edit manually.
+# Scrape targets are driven by host_vars (host_ip, node_exporter_port, cadvisor_port).
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    environment: homelab
+
+scrape_configs:
+
+  # ── Prometheus self-monitoring ───────────────────────────────────────────────
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:{{ prometheus_port }}"]
+
+  # ── node_exporter — OS-level metrics ─────────────────────────────────────────
+  - job_name: "node_exporter"
+    static_configs:
+{% for host in groups['monitored'] %}
+      - targets: ["{{ hostvars[host]['host_ip'] }}:{{ hostvars[host]['node_exporter_port'] | default(9100) }}"]
+        labels:
+          instance: "{{ host }}"
+{% endfor %}
+
+  # ── cAdvisor — container-level metrics ───────────────────────────────────────
+  - job_name: "cadvisor"
+    static_configs:
+{% for host in groups['monitored'] %}
+      - targets: ["{{ hostvars[host]['host_ip'] }}:{{ hostvars[host]['cadvisor_port'] | default(8080) }}"]
+        labels:
+          instance: "{{ host }}"
+{% endfor %}

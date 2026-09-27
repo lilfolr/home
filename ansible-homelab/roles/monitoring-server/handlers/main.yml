@@ -1,0 +1,7 @@
+---
+# roles/monitoring-server/handlers/main.yml
+
+- name: Restart Prometheus
+  community.docker.docker_container:
+    name: prometheus
+    state: restarted

@@ -1,0 +1,21 @@
+---
+# roles/frigate-influx/defaults/main.yml
+# All values overridden by host_vars/desktop-tower.yml
+
+frigate_version: "0.17.0"
+frigate_media_path: "/mnt/frigate"
+frigate_config_path: "/opt/frigate/config"
+frigate_web_port: 5000
+frigate_rtsp_port: 8554
+frigate_shm_size: "100mb"
+frigate_tmpfs_size: 1000000000
+frigate_privileged: true
+frigate_devices:
+  - /dev/dri/renderD128
+frigate_camera_username: "admin"
+# frigate_camera_password must be set via vault (vault_frigate_camera_password)
+
+influxdb_data_path: "/HDD/Projects/HA_Influx/data"
+influxdb_port: 8086
+influxdb_admin_port: 8083
+influxdb_version: "1.11"

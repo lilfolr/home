@@ -1,0 +1,19 @@
+---
+# roles/docker/tasks/main.yml
+# Selects OS-appropriate tasks for Docker installation.
+
+- name: Include OS-specific Docker installation tasks
+  ansible.builtin.include_tasks: "{{ ansible_os_family | lower }}.yml"
+
+- name: Add ansible user to the docker group
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: true
+
+- name: Enable and start Docker service
+  ansible.builtin.systemd:
+    name: docker
+    enabled: true
+    state: started
+    daemon_reload: true

@@ -1,0 +1,8 @@
+---
+# roles/docker/defaults/main.yml
+
+# Maps uname -m architecture strings to Docker's apt repo arch names
+docker_arch_map:
+  x86_64: amd64
+  aarch64: arm64
+  armv7l: armhf

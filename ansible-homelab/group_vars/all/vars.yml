@@ -1,0 +1,13 @@
+---
+# ansible-homelab/group_vars/all.yml
+# Variables shared across ALL hosts in inventory.
+
+# The user that Ansible connects as (must have sudo / be in sudoers)
+ansible_user: "{{ vault_ansible_user | default('ansible') }}"
+
+# Common Docker network for monitoring
+monitoring_docker_network: monitoring
+
+# Pinned versions — update here to roll out upgrades everywhere
+node_exporter_version: "1.8.2"
+cadvisor_version: "v0.49.1"

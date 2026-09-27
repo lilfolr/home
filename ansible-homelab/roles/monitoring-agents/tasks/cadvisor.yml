@@ -1,0 +1,28 @@
+---
+# roles/monitoring-agents/tasks/cadvisor.yml
+# Deploys Google cAdvisor as a Docker container for container-level metrics.
+
+- name: Ensure monitoring Docker network exists
+  community.docker.docker_network:
+    name: "{{ monitoring_docker_network }}"
+    state: present
+
+- name: Deploy cAdvisor container
+  community.docker.docker_container:
+    name: cadvisor
+    image: "gcr.io/cadvisor/cadvisor:{{ cadvisor_version }}"
+    state: started
+    restart_policy: unless-stopped
+    privileged: true
+    ports:
+      - "{{ cadvisor_port }}:8080"
+    volumes:
+      - "/:/rootfs:ro"
+      - "/var/run:/var/run:ro"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker:/var/lib/docker:ro"
+      - "/dev/disk:/dev/disk:ro"
+    networks:
+      - name: "{{ monitoring_docker_network }}"
+    devices:
+      - "/dev/kmsg:/dev/kmsg"

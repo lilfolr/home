@@ -1,0 +1,9 @@
+---
+# ansible-homelab/group_vars/all/vars.yml
+# Plain-text vars that reference vault variables.
+# These are safe to commit — the sensitive values live in vault.yml.
+
+grafana_admin_password: "{{ vault_grafana_admin_password }}"
+# influxdb_admin_password: "{{ vault_influxdb_admin_password }}"  # only needed if INFLUXDB_HTTP_AUTH_ENABLED=true
+immich_db_password: "{{ vault_immich_db_password }}"
+frigate_camera_password: "{{ vault_frigate_camera_password }}"

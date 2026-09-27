@@ -1,0 +1,7 @@
+---
+# roles/portainer/defaults/main.yml
+
+portainer_version: "latest"
+portainer_port: 9000
+portainer_https_port: 9443
+portainer_data_volume: "portainer_data"

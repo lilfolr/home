@@ -1,0 +1,21 @@
+---
+# roles/portainer/tasks/main.yml
+# Deploys Portainer CE as a Docker container with Docker socket access.
+
+- name: Create Portainer Docker volume
+  community.docker.docker_volume:
+    name: "{{ portainer_data_volume }}"
+    state: present
+
+- name: Deploy Portainer CE container
+  community.docker.docker_container:
+    name: portainer
+    image: "portainer/portainer-ce:{{ portainer_version }}"
+    state: started
+    restart_policy: unless-stopped
+    ports:
+      - "{{ portainer_port }}:9000"
+      - "{{ portainer_https_port }}:9443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "{{ portainer_data_volume }}:/data"

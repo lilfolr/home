@@ -1,0 +1,8 @@
+---
+# roles/frigate-influx/handlers/main.yml
+
+- name: Restart frigate-influx stack
+  community.docker.docker_compose_v2:
+    project_src: /opt/frigate-influx
+    state: present
+    pull: missing

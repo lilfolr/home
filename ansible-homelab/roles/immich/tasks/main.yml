@@ -1,0 +1,95 @@
+---
+# roles/immich/tasks/main.yml
+# Deploys Immich using Immich's official docker-compose + .env approach.
+# We fetch the official compose file and layer our own .env on top.
+
+- name: Create Immich config directory
+  ansible.builtin.file:
+    path: "{{ immich_config_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create NAS NFS mount point
+  ansible.builtin.file:
+    path: "{{ immich_nas_mount_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Mount NAS NFS share via fstab
+  ansible.posix.mount:
+    src: "{{ immich_nas_host }}:{{ immich_nas_export }}"
+    path: "{{ immich_nas_mount_path }}"
+    fstype: nfs
+    opts: "{{ immich_nas_mount_opts }}"
+    dump: "0"
+    passno: "0"
+    state: mounted
+
+
+- name: Create Immich required subdirectories on NFS mount
+  ansible.builtin.file:
+    path: "{{ immich_upload_path }}/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - encoded-video
+    - library
+    - upload
+    - profile
+    - thumbs
+    - backups
+
+- name: Create Immich .immich marker files (folder integrity check)
+  ansible.builtin.file:
+    path: "{{ immich_upload_path }}/{{ item }}/.immich"
+    state: touch
+    mode: "0644"
+  loop:
+    - encoded-video
+    - library
+    - upload
+    - profile
+    - thumbs
+    - backups
+
+- name: Create Immich DB data directory
+
+  ansible.builtin.file:
+    path: "{{ immich_db_data_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Download Immich official docker-compose.yml
+  ansible.builtin.get_url:
+    url: "{{ 'https://github.com/immich-app/immich/releases/latest/download/docker-compose.yml' if immich_version == 'release' else 'https://github.com/immich-app/immich/releases/download/' ~ immich_version ~ '/docker-compose.yml' }}"
+    dest: "{{ immich_config_path }}/docker-compose.yml"
+    mode: "0644"
+    force: true
+
+- name: Download Immich official example .env
+  ansible.builtin.get_url:
+    url: "{{ 'https://github.com/immich-app/immich/releases/latest/download/example.env' if immich_version == 'release' else 'https://github.com/immich-app/immich/releases/download/' ~ immich_version ~ '/example.env' }}"
+    dest: "{{ immich_config_path }}/.env.example"
+    mode: "0644"
+    force: false  # reference only — we template our own .env below
+
+- name: Template Immich .env file
+  ansible.builtin.template:
+    src: immich.env.j2
+    dest: "{{ immich_config_path }}/.env"
+    owner: root
+    group: root
+    mode: "0600"  # contains secrets
+  notify: Restart Immich stack
+
+- name: Deploy Immich stack via Docker Compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ immich_config_path }}"
+    state: present
+    pull: missing

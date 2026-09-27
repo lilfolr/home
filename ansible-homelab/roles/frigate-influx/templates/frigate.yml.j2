@@ -1,0 +1,178 @@
+# yaml-language-server: $schema=http://192.168.4.10:5000/api/config/schema.json
+mqtt:
+  enabled: true
+  host: 192.168.4.61
+  port: 1883
+  topic_prefix: frigate
+  user: mqtt
+  password: {{ vault_frigate_mqtt_password }}
+  stats_interval: 60
+
+logger:
+  default: warning
+
+detectors:
+  coral:
+    type: edgetpu
+    device: usb
+
+cameras:
+  frontDoor:
+    ffmpeg:
+      inputs:
+        - path:
+            rtsp://{FRIGATE_CAMERA_USERNAME}:{FRIGATE_CAMERA_PASSWORD}@192.168.4.127:554
+          roles:
+            - detect
+            - record
+    detect:
+      enabled: true
+      width: 1280
+      height: 720
+
+    objects:
+      track:
+        - person
+      filters:
+        person:
+          min_area: 5000
+    record:
+      enabled: true
+      alerts:
+        retain:
+          days: 30
+        pre_capture: 60
+        post_capture: 120
+      detections:
+        retain:
+          days: 30
+        pre_capture: 60
+        post_capture: 120
+  patio1:
+    ffmpeg:
+      inputs:
+        - path:
+            rtsp://{FRIGATE_CAMERA_USERNAME}:{FRIGATE_CAMERA_PASSWORD}@192.168.4.128:554
+          roles:
+            - detect
+            - record
+    detect:
+      enabled: true
+      width: 1280
+      height: 720
+    objects:
+      track:
+        - person
+        - cat
+  patio2:
+    ffmpeg:
+      inputs:
+        - path:
+            rtsp://{FRIGATE_CAMERA_USERNAME}:{FRIGATE_CAMERA_PASSWORD}@192.168.4.129:554
+          roles:
+            - detect
+            - record
+    detect:
+      enabled: true
+      width: 1280
+      height: 720
+    objects:
+      track:
+        - person
+        - cat
+    motion:
+      mask:
+        - 390,592,941,429,812,301,337,395
+  side:
+    ffmpeg:
+      inputs:
+        - path:
+            rtsp://{FRIGATE_CAMERA_USERNAME}:{FRIGATE_CAMERA_PASSWORD}@192.168.4.130:554
+          roles:
+            - detect
+            - record
+    detect:
+      enabled: true
+      width: 1280
+      height: 720
+    objects:
+      track:
+        - person
+        - cat
+  garage:
+    ffmpeg:
+      inputs:
+        - path:
+            rtsp://{FRIGATE_CAMERA_USERNAME}:{FRIGATE_CAMERA_PASSWORD}@192.168.4.131:554/h264Preview_01_sub
+          roles:
+            - detect
+            - record
+    record:
+      alerts:
+        retain:
+          days: 30
+        pre_capture: 60
+        post_capture: 500
+      detections:
+        retain:
+          days: 1
+    snapshots:
+      required_zones:
+        - driveway
+    detect:
+      enabled: true
+      width: 1280
+      height: 720
+    zones:
+      driveway:
+        coordinates:
+          1010,720,436,720,390,661,350,605,332,529,233,454,52,401,147,374,268,379,372,373,554,358,978,362,1034,264,1153,255,1280,299,1280,720
+    motion:
+      mask:
+        # Plants bottom left
+        - 0,720,403,720,393,657,310,541,259,481,170,433,40,399,299,368,619,362,0,0
+        # Top Road
+        - 292,339,542,358,936,346,1070,266,1280,262,1280,0,0,0,0,170
+
+    review:
+      alerts:
+        required_zones:
+          - driveway
+      detections:
+        required_zones:
+          - driveway
+objects:
+  track:
+    - person
+    - car
+    - cat
+
+record:
+  enabled: true
+  alerts:
+    retain:
+      days: 30
+    pre_capture: 60
+    post_capture: 120
+  detections:
+    retain:
+      days: 30
+    pre_capture: 60
+    post_capture: 120
+snapshots:
+  # Optional: Enable writing jpg snapshot to /media/frigate/clips (default: shown below)
+  enabled: true
+version: '39'
+detect:
+  enabled: true
+semantic_search:
+  enabled: false
+  model_size: small
+face_recognition:
+  enabled: true
+  model_size: small
+lpr:
+  enabled: false
+classification:
+  bird:
+    enabled: false

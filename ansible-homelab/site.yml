@@ -1,0 +1,55 @@
+---
+# ansible-homelab/site.yml
+# Master playbook — orchestrates all roles across the homelab.
+# Run with: ansible-playbook site.yml --ask-vault-pass
+#
+# NOTE: The Raspberry Pi running HAOS is NOT in inventory and will never be touched.
+
+# ── Step 1: Install Docker on all managed hosts ──────────────────────────────
+- name: Install Docker Engine
+  hosts: monitored
+  become: true
+  roles:
+    - docker
+
+# ── Step 2: Deploy monitoring agents on every managed host ───────────────────
+- name: Deploy monitoring agents (node_exporter + cAdvisor)
+  hosts: monitored
+  become: true
+  roles:
+    - monitoring-agents
+
+# ── Step 3: Deploy the monitoring server on mini-server ───────────────────────
+- name: Deploy monitoring server (Prometheus)
+  hosts: monitoring_servers
+  become: true
+  roles:
+    - monitoring-server
+
+# ── Step 4: Deploy Portainer on mini-server ───────────────────────────────────
+- name: Deploy Portainer
+  hosts: portainer_hosts
+  become: true
+  roles:
+    - portainer
+
+- name: Deploy Portainer Agent
+  hosts: portainer_agents
+  become: true
+  roles:
+    - portainer-agent
+
+
+# ── Step 5: Deploy Frigate + InfluxDB on desktop-tower ───────────────────────
+- name: Deploy Frigate NVR + InfluxDB
+  hosts: nvr
+  become: true
+  roles:
+    - frigate-influx
+
+# ── Step 6: Deploy Immich on mini-server ─────────────────────────────────────
+- name: Deploy Immich photo management
+  hosts: photo_management
+  become: true
+  roles:
+    - immich

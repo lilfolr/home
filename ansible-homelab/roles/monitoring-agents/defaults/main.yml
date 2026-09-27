@@ -1,0 +1,12 @@
+---
+# roles/monitoring-agents/defaults/main.yml
+
+node_exporter_user: node_exporter
+node_exporter_port: 9100   # overridden per host in host_vars if needed
+cadvisor_port: 8080
+
+# Architecture map for node_exporter binary download
+node_exporter_arch_map:
+  x86_64: amd64
+  aarch64: arm64
+  armv7l: armv7

@@ -1,0 +1,9 @@
+---
+# ansible-homelab/requirements.yml
+# Install with: ansible-galaxy collection install -r requirements.yml
+
+collections:
+  - name: community.docker
+    version: ">=3.10.0"   # provides docker_container, docker_compose_v2, etc.
+  - name: ansible.posix
+    version: ">=1.5.0"

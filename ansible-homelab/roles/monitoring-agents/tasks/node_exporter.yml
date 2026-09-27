@@ -1,0 +1,82 @@
+---
+# roles/monitoring-agents/tasks/node_exporter.yml
+# Installs Prometheus node_exporter as a native systemd service (not Docker).
+
+- name: Create node_exporter system group
+  ansible.builtin.group:
+    name: "{{ node_exporter_user }}"
+    system: true
+    state: present
+
+- name: Create node_exporter system user
+  ansible.builtin.user:
+    name: "{{ node_exporter_user }}"
+    group: "{{ node_exporter_user }}"
+    system: true
+    shell: /sbin/nologin
+    create_home: false
+    state: present
+
+- name: Set node_exporter download URL facts
+  ansible.builtin.set_fact:
+    _node_exporter_archive: >-
+      node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_arch_map[ansible_architecture] | default('amd64') }}.tar.gz
+    _node_exporter_url: >-
+      https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_arch_map[ansible_architecture] | default('amd64') }}.tar.gz
+
+- name: Check if correct node_exporter version already installed
+  ansible.builtin.command:
+    cmd: /usr/local/bin/node_exporter --version
+  register: _ne_version_check
+  changed_when: false
+  failed_when: false
+
+- name: Download and install node_exporter binary
+  when: >
+    _ne_version_check.rc != 0 or
+    node_exporter_version not in _ne_version_check.stdout
+  block:
+    - name: Download node_exporter archive
+      ansible.builtin.get_url:
+        url: "{{ _node_exporter_url }}"
+        dest: "/tmp/{{ _node_exporter_archive }}"
+        mode: "0644"
+
+    - name: Extract node_exporter binary
+      ansible.builtin.unarchive:
+        src: "/tmp/{{ _node_exporter_archive }}"
+        dest: /tmp
+        remote_src: true
+
+    - name: Install node_exporter binary to /usr/local/bin
+      ansible.builtin.copy:
+        src: "/tmp/node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_arch_map[ansible_architecture] | default('amd64') }}/node_exporter"
+        dest: /usr/local/bin/node_exporter
+        owner: "{{ node_exporter_user }}"
+        group: "{{ node_exporter_user }}"
+        mode: "0755"
+        remote_src: true
+      notify: Restart node_exporter
+
+    - name: Clean up downloaded archive
+      ansible.builtin.file:
+        path: "/tmp/{{ _node_exporter_archive }}"
+        state: absent
+
+- name: Install node_exporter systemd unit file
+  ansible.builtin.template:
+    src: node_exporter.service.j2
+    dest: /etc/systemd/system/node_exporter.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - Reload systemd
+    - Restart node_exporter
+
+- name: Enable and start node_exporter service
+  ansible.builtin.systemd:
+    name: node_exporter
+    enabled: true
+    state: started
+    daemon_reload: true

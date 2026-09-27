@@ -1,0 +1,60 @@
+---
+# roles/frigate-influx/tasks/main.yml
+# Deploys Frigate NVR + InfluxDB via Docker Compose on desktop-tower.
+
+- name: Create Frigate config directory
+  ansible.builtin.file:
+    path: "{{ frigate_config_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create Frigate media directory
+  ansible.builtin.file:
+    path: "{{ frigate_media_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Ensure InfluxDB data directory permissions
+  ansible.builtin.file:
+    path: "{{ influxdb_data_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0777"
+
+- name: Create compose directory for frigate-influx stack
+  ansible.builtin.file:
+    path: /opt/frigate-influx
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Template docker-compose.yml for Frigate + InfluxDB
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: /opt/frigate-influx/docker-compose.yml
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart frigate-influx stack
+
+- name: Template Frigate config.yml
+  ansible.builtin.template:
+    src: frigate.yml.j2
+    dest: "{{ frigate_config_path }}/config.yml"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart frigate-influx stack
+
+- name: Deploy Frigate + InfluxDB stack via Docker Compose
+  community.docker.docker_compose_v2:
+    project_src: /opt/frigate-influx
+    state: present
+    pull: missing   # pull images only if not already present
+    remove_orphans: true

@@ -1,0 +1,57 @@
+# roles/frigate-influx/templates/docker-compose.yml.j2
+# Managed by Ansible — do not edit manually.
+# Hardware device passthrough controlled via host_vars/desktop-tower.yml
+
+version: "3.9"
+
+services:
+
+  # ── Frigate NVR ──────────────────────────────────────────────────────────────
+  frigate:
+    container_name: frigate
+    image: ghcr.io/blakeblackshear/frigate:{{ frigate_version }}
+    privileged: {{ frigate_privileged | lower }}
+    restart: unless-stopped
+    shm_size: "{{ frigate_shm_size }}"
+    devices:
+{% for device in frigate_devices %}
+      - {{ device }}
+{% endfor %}
+    volumes:
+      - /dev/bus/usb:/dev/bus/usb          # Coral USB accelerator
+      - /etc/localtime:/etc/localtime:ro
+      - {{ frigate_config_path }}:/config
+      - {{ frigate_media_path }}:/media/frigate
+      - type: tmpfs                         # reduces SSD wear for clip cache
+        target: /tmp/cache
+        tmpfs:
+          size: {{ frigate_tmpfs_size }}
+    ports:
+      - "{{ frigate_web_port }}:5000"       # Web UI
+      - "{{ frigate_rtsp_port }}:8554"      # RTSP restream
+      - "8555:8555/tcp"                     # WebRTC over TCP
+      - "8555:8555/udp"                     # WebRTC over UDP
+    environment:
+      FRIGATE_CAMERA_USERNAME: "{{ frigate_camera_username }}"
+      FRIGATE_CAMERA_PASSWORD: "{{ vault_frigate_camera_password }}"
+    depends_on:
+      - influxdb
+
+  # ── InfluxDB 1.x ─────────────────────────────────────────────────────────────
+  # Running v1.x (confirmed by port 8083 admin UI and /var/lib/influxdb mount).
+  # v2's DOCKER_INFLUXDB_INIT_* env vars do NOT apply here.
+  influxdb:
+    container_name: influxdb
+    image: influxdb:{{ influxdb_version }}
+    restart: unless-stopped
+    ports:
+      - "{{ influxdb_port }}:8086"          # HTTP API + query endpoint
+      - "{{ influxdb_admin_port }}:8083"    # v1 admin web UI
+    volumes:
+      - {{ influxdb_data_path }}:/var/lib/influxdb
+    # ── Optional: enable HTTP auth in v1 via env vars ──────────────────────────
+    # Uncomment and set credentials if you want auth enabled:
+    environment:
+      INFLUXDB_HTTP_AUTH_ENABLED: "true"
+      INFLUXDB_ADMIN_USER: admin
+      INFLUXDB_ADMIN_PASSWORD: "{{ vault_influxdb_admin_password }}"

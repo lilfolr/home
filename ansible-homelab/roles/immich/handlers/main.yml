@@ -1,0 +1,8 @@
+---
+# roles/immich/handlers/main.yml
+
+- name: Restart Immich stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ immich_config_path }}"
+    state: present
+    pull: missing

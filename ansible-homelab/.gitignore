@@ -1,0 +1,27 @@
+# .gitignore for ansible-homelab
+# Never commit vault passwords or SSH keys
+
+# Ansible Vault password files
+.vault_pass
+*.vault_pass
+vault_password_file
+
+# SSH keys
+*.pem
+*.key
+id_rsa
+id_ed25519
+
+# Ansible retry files
+*.retry
+
+# Python virtualenv (if using one locally)
+.venv/
+venv/
+__pycache__/
+
+# Editor artifacts
+.vscode/
+.idea/
+*.swp
+*.swo

@@ -1,0 +1,10 @@
+---
+# roles/monitoring-agents/tasks/main.yml
+# Deploys node_exporter (systemd binary) and cAdvisor (Docker container)
+# on every host in the "monitored" group.
+
+- name: Include node_exporter tasks
+  ansible.builtin.import_tasks: node_exporter.yml
+
+- name: Include cAdvisor tasks
+  ansible.builtin.import_tasks: cadvisor.yml

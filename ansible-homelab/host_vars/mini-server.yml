@@ -1,0 +1,42 @@
+---
+# ansible-homelab/host_vars/mini-server.yml
+# Host-specific configuration for mini-server
+# (Immich, Portainer, Prometheus, Grafana)
+
+# ── Network ─────────────────────────────────────────────────────────────────
+host_ip: "192.168.4.239"
+
+# ── node_exporter / cAdvisor ports (override if needed) ─────────────────────
+node_exporter_port: 9100
+cadvisor_port: 8080
+
+# ── Prometheus ───────────────────────────────────────────────────────────────
+prometheus_version: "v2.53.0"
+prometheus_port: 9090
+prometheus_data_volume: "prometheus_data"
+prometheus_retention: "30d"
+
+# Scrape targets — these pull from each host's host_vars.
+# The template iterates hostvars['desktop-tower'] and hostvars['mini-server'].
+# You can override individual targets here if needed.
+
+# ── Portainer ────────────────────────────────────────────────────────────────
+portainer_version: "latest"
+portainer_port: 9000        # HTTP UI
+portainer_https_port: 9443  # HTTPS UI
+portainer_data_volume: "portainer_data"
+
+# ── Immich ────────────────────────────────────────────────────────────────────
+immich_version: "v3.2.2"   # pin to a tag like "v1.106.4" for stability
+immich_config_path: "/opt/immich"   # directory for docker-compose.yml + .env
+immich_db_username: "immich"
+# immich_db_password comes from vault via group_vars/all/vars.yml
+immich_db_name: "immich"
+immich_port: 2283
+
+# NAS NFS mount — Synology at 192.168.4.112
+immich_nas_host: "192.168.4.112"
+immich_nas_export: "/volume1/Pictures"
+immich_nas_mount_path: "/mnt/nas/pictures"
+immich_nas_mount_opts: "auto,nofail,noatime,nolock,intr,tcp,actimeo=1800"
+immich_upload_path: "{{ immich_nas_mount_path }}"

@@ -1,0 +1,5 @@
+---
+# roles/portainer-agent/defaults/main.yml
+
+portainer_agent_version: "latest"
+portainer_agent_port: 9001

@@ -1,0 +1,15 @@
+---
+# roles/docker/tasks/archlinux.yml
+# Installs Docker Engine + Compose plugin via pacman on Arch Linux.
+
+- name: Install Docker and Docker Compose plugin via pacman (Arch Linux)
+  community.general.pacman:
+    name:
+      - docker
+      - docker-compose
+      - docker-buildx
+      - python-requests
+      - python-docker
+      - nfs-utils          # required for NFS mounts
+    state: present
+    update_cache: true

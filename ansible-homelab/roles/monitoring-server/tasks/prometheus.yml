@@ -1,0 +1,43 @@
+---
+# roles/monitoring-server/tasks/prometheus.yml
+
+- name: Create Prometheus config directory
+  ansible.builtin.file:
+    path: /etc/prometheus
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Template Prometheus configuration
+  ansible.builtin.template:
+    src: prometheus.yml.j2
+    dest: /etc/prometheus/prometheus.yml
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart Prometheus
+
+- name: Create Prometheus Docker volume
+  community.docker.docker_volume:
+    name: "{{ prometheus_data_volume }}"
+    state: present
+
+- name: Deploy Prometheus container
+  community.docker.docker_container:
+    name: prometheus
+    image: "prom/prometheus:{{ prometheus_version }}"
+    state: started
+    restart_policy: unless-stopped
+    ports:
+      - "{{ prometheus_port }}:9090"
+    volumes:
+      - "/etc/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
+      - "{{ prometheus_data_volume }}:/prometheus"
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time={{ prometheus_retention }}"
+      - "--web.enable-lifecycle"   # allows POST /-/reload to hot-reload config
+    networks:
+      - name: "{{ monitoring_docker_network }}"

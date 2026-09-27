@@ -1,0 +1,11 @@
+---
+# roles/monitoring-server/tasks/main.yml
+# Deploys Prometheus and Grafana as Docker containers on mini-server.
+
+- name: Ensure monitoring Docker network exists
+  community.docker.docker_network:
+    name: "{{ monitoring_docker_network }}"
+    state: present
+
+- name: Include Prometheus tasks
+  ansible.builtin.import_tasks: prometheus.yml

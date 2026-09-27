@@ -1,0 +1,8 @@
+---
+# roles/monitoring-server/defaults/main.yml
+# These are overridden by host_vars/mini-server.yml for specific values.
+
+prometheus_version: "v2.53.0"
+prometheus_port: 9090
+prometheus_data_volume: "prometheus_data"
+prometheus_retention: "30d"

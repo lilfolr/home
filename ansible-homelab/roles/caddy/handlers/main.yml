@@ -1,0 +1,23 @@
+---
+# roles/caddy/handlers/main.yml
+
+# Called when only the Caddyfile changes — zero-downtime hot-reload.
+# Caddy validates the new config before swapping it in; on failure the
+# running config is kept and the task is marked failed.
+- name: Reload Caddy config
+  community.docker.docker_container:
+    name: caddy
+    state: started
+    restart: true
+  listen: Reload Caddy config
+
+# Called when the compose file changes (env vars, image tag, port mapping, etc.)
+# This restarts the container, which causes a brief downtime (~1-2s in practice).
+- name: Restart Caddy stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ caddy_config_path }}"
+    state: present
+    pull: never
+    remove_orphans: true
+    recreate: always
+  listen: Restart Caddy stack

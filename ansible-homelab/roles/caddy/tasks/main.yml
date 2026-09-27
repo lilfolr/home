@@ -1,0 +1,64 @@
+---
+# roles/caddy/tasks/main.yml
+# Deploys a custom Caddy build (with caddy-dns/route53) via Docker Compose.
+# Firewall: no UFW tasks — mini-server relies on router/NAT + Tailscale.
+# Ports 80 and 443 are bound by Docker directly.
+
+# ── 1. Directory & config layout ──────────────────────────────────────────────
+- name: Create Caddy config directory
+  ansible.builtin.file:
+    path: "{{ caddy_config_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Template Dockerfile for custom Caddy build
+  ansible.builtin.template:
+    src: Dockerfile.j2
+    dest: "{{ caddy_config_path }}/Dockerfile"
+    owner: root
+    group: root
+    mode: "0644"
+  register: caddy_dockerfile
+
+- name: Template Caddyfile
+  ansible.builtin.template:
+    src: Caddyfile.j2
+    dest: "{{ caddy_config_path }}/Caddyfile"
+    owner: root
+    group: root
+    mode: "0644"
+  register: caddy_caddyfile
+  notify: Reload Caddy config
+
+- name: Template docker-compose.yml
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ caddy_config_path }}/docker-compose.yml"
+    owner: root
+    group: root
+    mode: "0640"   # 0640 — contains vault secrets in the rendered file
+  register: caddy_compose
+  notify: Restart Caddy stack
+
+# ── 3. Build custom image ─────────────────────────────────────────────────────
+- name: Build custom Caddy image (with route53 DNS plugin)
+  community.docker.docker_image:
+    name: "{{ caddy_image_name }}"
+    tag: latest
+    build:
+      path: "{{ caddy_config_path }}"
+      dockerfile: Dockerfile
+      pull: true        # always pull fresh base so plugin deps stay current
+      nocache: false
+    source: build
+    force_source: "{{ caddy_dockerfile.changed }}"   # rebuild only when Dockerfile changed
+
+# ── 4. Deploy stack ───────────────────────────────────────────────────────────
+- name: Deploy Caddy stack via Docker Compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ caddy_config_path }}"
+    state: present
+    pull: never          # image is local-only; skip registry pull attempt
+    remove_orphans: true

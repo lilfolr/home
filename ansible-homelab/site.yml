@@ -1,14 +1,16 @@
 ---
 # ansible-homelab/site.yml
 # Master playbook — orchestrates all roles across the homelab.
-# Run with: ansible-playbook site.yml --ask-vault-pass
+# Run with: uv run ansible-playbook -i inventory/hosts.yml site.yml --vault-password-file ~/.vault_pass
 #
+# Use --tags <role> to run a single role, e.g. --tags caddy
 # NOTE: The Raspberry Pi running HAOS is NOT in inventory and will never be touched.
 
 # ── Step 1: Install Docker on all managed hosts ──────────────────────────────
 - name: Install Docker Engine
   hosts: monitored
   become: true
+  tags: [docker]
   roles:
     - docker
 
@@ -16,6 +18,7 @@
 - name: Deploy monitoring agents (node_exporter + cAdvisor)
   hosts: monitored
   become: true
+  tags: [monitoring-agents]
   roles:
     - monitoring-agents
 
@@ -23,6 +26,7 @@
 - name: Deploy monitoring server (Prometheus)
   hosts: monitoring_servers
   become: true
+  tags: [monitoring-server]
   roles:
     - monitoring-server
 
@@ -30,20 +34,22 @@
 - name: Deploy Portainer
   hosts: portainer_hosts
   become: true
+  tags: [portainer]
   roles:
     - portainer
 
 - name: Deploy Portainer Agent
   hosts: portainer_agents
   become: true
+  tags: [portainer-agent]
   roles:
     - portainer-agent
-
 
 # ── Step 5: Deploy Frigate + InfluxDB on desktop-tower ───────────────────────
 - name: Deploy Frigate NVR + InfluxDB
   hosts: nvr
   become: true
+  tags: [frigate-influx]
   roles:
     - frigate-influx
 
@@ -51,5 +57,22 @@
 - name: Deploy Immich photo management
   hosts: photo_management
   become: true
+  tags: [immich]
   roles:
     - immich
+
+# ── Step 7: Deploy Caddy reverse proxy on mini-server ────────────────────────
+- name: Deploy Caddy reverse proxy
+  hosts: reverse_proxy
+  become: true
+  tags: [caddy]
+  roles:
+    - caddy
+
+# ── Step 8: Deploy Homepage dashboard on mini-server ─────────────────────────
+- name: Deploy Homepage dashboard
+  hosts: homepage_hosts
+  become: true
+  tags: [homepage]
+  roles:
+    - homepage

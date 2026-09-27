@@ -1,0 +1,58 @@
+---
+# roles/caddy/defaults/main.yml
+# Defaults for the Caddy reverse-proxy role.
+# Override in host_vars/mini-server.yml or group_vars as needed.
+
+# ── Paths ────────────────────────────────────────────────────────────────────
+caddy_config_path: /opt/caddy          # docker-compose.yml + Caddyfile live here
+caddy_data_volume: caddy_data          # named volume — ACME certs + storage
+caddy_config_volume: caddy_config      # named volume — Caddy runtime config
+
+# ── Custom image build ────────────────────────────────────────────────────────
+caddy_image_name: caddy-route53        # local image name (never pushed)
+caddy_caddy_base_version: "2"          # base tag for the official caddy image
+caddy_xcaddy_version: "latest"         # xcaddy builder tag
+
+# ── TLS / ACME ───────────────────────────────────────────────────────────────
+caddy_acme_email: "admin@lrlilford.com"
+caddy_wildcard_domain: "*.internal.lrlilford.com"
+
+# ── Firewall ports ────────────────────────────────────────────────────────────
+caddy_http_port: 80
+caddy_https_port: 443
+
+# ── Internal services ─────────────────────────────────────────────────────────
+# List of dicts: { hostname, target_ip, target_port, override_host (optional) }
+# Add new services here and re-run the playbook — no other files need editing.
+caddy_services:
+  - hostname: cameras.internal.lrlilford.com
+    target_ip: 192.168.4.10
+    target_port: 5000
+  - hostname: photos.internal.lrlilford.com
+    target_ip: 192.168.4.239
+    target_port: 2283
+  - hostname: homepage.internal.lrlilford.com
+    target_ip: 192.168.4.239
+    target_port: 3000
+  - hostname: home.internal.lrlilford.com
+    target_ip: 192.168.4.239
+    target_port: 3000
+  - hostname: ha.internal.lrlilford.com
+    target_ip: 192.168.4.61
+    target_port: 8123
+  - hostname: homeassistant.internal.lrlilford.com
+    target_ip: 192.168.4.61
+    target_port: 8123
+  - hostname: adguard.internal.lrlilford.com
+    target_ip: 192.168.4.1
+    target_port: 3000
+  - hostname: router.internal.lrlilford.com
+    target_ip: 192.168.4.1
+    target_port: 80
+    override_host: true
+  - hostname: portainer.internal.lrlilford.com
+    target_ip: 192.168.4.239
+    target_port: 9000
+  - hostname: prometheus.internal.lrlilford.com
+    target_ip: 192.168.4.239
+    target_port: 9090

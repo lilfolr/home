@@ -1,0 +1,17 @@
+{# templates/widgets.yaml.j2 — managed by Ansible, do not edit manually #}
+---
+- resources:
+    cpu: true
+    memory: true
+    disk: /
+
+- search:
+    provider: duckduckgo
+    target: _blank
+
+- datetime:
+    text_size: xl
+    format:
+      dateStyle: long
+      timeStyle: short
+      hour12: false

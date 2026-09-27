@@ -1,0 +1,61 @@
+---
+# roles/homepage/tasks/main.yml
+# Deploys gethomepage/homepage as a Docker container on mini-server.
+# Config files are templated into homepage_config_path and bind-mounted.
+
+- name: Create homepage config directory
+  ansible.builtin.file:
+    path: "{{ homepage_config_path }}"
+    state: directory
+    mode: "0755"
+
+- name: Template homepage settings.yaml
+  ansible.builtin.template:
+    src: settings.yaml.j2
+    dest: "{{ homepage_config_path }}/settings.yaml"
+    mode: "0644"
+  notify: Restart homepage
+
+- name: Template homepage services.yaml
+  ansible.builtin.template:
+    src: services.yaml.j2
+    dest: "{{ homepage_config_path }}/services.yaml"
+    mode: "0644"
+  notify: Restart homepage
+
+- name: Template homepage widgets.yaml
+  ansible.builtin.template:
+    src: widgets.yaml.j2
+    dest: "{{ homepage_config_path }}/widgets.yaml"
+    mode: "0644"
+  notify: Restart homepage
+
+- name: Ensure bookmarks.yaml exists (empty placeholder)
+  ansible.builtin.copy:
+    content: "---\n# bookmarks managed manually\n"
+    dest: "{{ homepage_config_path }}/bookmarks.yaml"
+    mode: "0644"
+    force: false   # never overwrite if already customised
+
+- name: Ensure docker.yaml exists (empty placeholder)
+  ansible.builtin.copy:
+    content: "---\n# docker integration managed manually\n"
+    dest: "{{ homepage_config_path }}/docker.yaml"
+    mode: "0644"
+    force: false
+
+- name: Deploy homepage container
+  community.docker.docker_container:
+    name: homepage
+    image: "ghcr.io/gethomepage/homepage:{{ homepage_version }}"
+    state: started
+    restart_policy: unless-stopped
+    ports:
+      - "{{ homepage_port }}:3000"
+    volumes:
+      - "{{ homepage_config_path }}:/app/config"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      HOMEPAGE_ALLOWED_HOSTS: "{{ homepage_allowed_hosts }}"

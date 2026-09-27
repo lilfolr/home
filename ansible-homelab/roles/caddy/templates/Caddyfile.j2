@@ -1,0 +1,37 @@
+# Caddyfile — managed by Ansible.  Do not edit manually.
+# Re-generate by running: uv run ansible-playbook -i inventory/hosts.yml site.yml --vault-password-file ~/.vault_pass --limit mini-server
+
+{
+    # Global options block
+    email {{ caddy_acme_email }}
+
+    # Configure DNS-01 globally so ALL sites use it automatically.
+    # Caddy reads AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY from the
+    # environment — credentials are injected by docker-compose at runtime.
+    acme_dns route53 {
+        max_retries 10
+    }
+}
+
+# Single wildcard site block — Caddy issues one shared *.internal.lrlilford.com
+# cert and routes each hostname via @host named matchers.
+*.internal.lrlilford.com {
+
+{% for svc in caddy_services %}
+    @{{ svc.hostname | replace('.', '_') }} host {{ svc.hostname }}
+    handle @{{ svc.hostname | replace('.', '_') }} {
+{% if svc.override_host | default(false) %}
+        reverse_proxy {{ svc.target_ip }}:{{ svc.target_port }} {
+            header_up Host {upstream_hostport}
+        }
+{% else %}
+        reverse_proxy {{ svc.target_ip }}:{{ svc.target_port }}
+{% endif %}
+    }
+
+{% endfor %}
+    # Catch-all: return 404 for any unmatched subdomain
+    handle {
+        respond "Not found" 404
+    }
+}

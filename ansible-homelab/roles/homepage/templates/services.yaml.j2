@@ -1,0 +1,68 @@
+{# templates/services.yaml.j2 — managed by Ansible, do not edit manually #}
+---
+# ── Smart Home & Cameras ──────────────────────────────────────────────────────
+- Smart Home:
+    - Frigate NVR:
+        icon: frigate.png
+        href: "https://cameras.internal.lrlilford.com"
+        description: "Security cameras & object detection"
+        widget:
+          type: frigate
+          url: "http://{{ hostvars['desktop-tower']['host_ip'] }}:{{ hostvars['desktop-tower']['frigate_web_port'] }}"
+
+    - Home Assistant:
+        icon: home-assistant.png
+        href: "https://ha.internal.lrlilford.com"
+        description: "Home automation"
+{% if ha_api_key is defined %}
+        widget:
+          type: homeassistant
+          url: "http://192.168.4.61:8123"
+          key: "{{ ha_api_key }}"
+{% endif %}
+
+# ── Media ─────────────────────────────────────────────────────────────────────
+- Media:
+    - Immich:
+        icon: immich.png
+        href: "https://photos.internal.lrlilford.com"
+        description: "Photo management"
+
+# ── Network ───────────────────────────────────────────────────────────────────
+- Network:
+    - AdGuard Home:
+        icon: adguard-home.png
+        href: "https://adguard.internal.lrlilford.com"
+        description: "DNS & ad blocking"
+{% if adguard_username is defined and adguard_password is defined %}
+        widget:
+          type: adguard
+          url: "http://192.168.4.1:3000"
+          username: "{{ adguard_username }}"
+          password: "{{ adguard_password }}"
+{% endif %}
+
+    - Router:
+        icon: router.png
+        href: "https://router.internal.lrlilford.com"
+        description: "Gateway router (192.168.4.1)"
+
+# ── Infrastructure & Monitoring ───────────────────────────────────────────────
+- Infrastructure:
+    - Portainer:
+        icon: portainer.png
+        href: "https://portainer.internal.lrlilford.com"
+        description: "Container management"
+        widget:
+          type: portainer
+          url: "http://{{ host_ip }}:{{ portainer_port }}"
+          env: 6
+          key: "{{ vault_portainer_access_key }}"
+
+    - Prometheus:
+        icon: prometheus.png
+        href: "https://prometheus.internal.lrlilford.com"
+        description: "Metrics & monitoring"
+        widget:
+          type: prometheus
+          url: "http://{{ host_ip }}:{{ prometheus_port }}"

@@ -1,0 +1,51 @@
+---
+# roles/homepage/defaults/main.yml
+# Defaults for the gethomepage/homepage role.
+# Override in host_vars/mini-server.yml as needed.
+
+homepage_version: "latest"
+homepage_port: 3000
+homepage_config_path: /opt/homepage   # directory for config YAML files
+homepage_allowed_hosts: "home.internal.lrlilford.com,homepage.internal.lrlilford.com,{{ host_ip }}:{{ homepage_port }}"
+
+# ── Services displayed on the dashboard ──────────────────────────────────────
+# Each entry maps to a homepage "service group".  The list is consumed by
+# templates/services.yaml.j2.  Override in host_vars to add/remove entries.
+homepage_services:
+  - name: Cameras
+    icon: frigate.png
+    description: Frigate NVR
+    href: "https://cameras.internal.lrlilford.com"
+    widget:
+      type: frigate
+      url: "http://{{ hostvars['desktop-tower']['host_ip'] }}:{{ hostvars['desktop-tower']['frigate_web_port'] }}"
+
+  - name: Smart Home
+    icon: home-assistant.png
+    description: Home Assistant
+    href: "https://ha.internal.lrlilford.com"
+
+  - name: Photos
+    icon: immich.png
+    description: Immich photo management
+    href: "https://photos.internal.lrlilford.com"
+
+  - name: AdGuard
+    icon: adguard-home.png
+    description: AdGuard Home DNS
+    href: "https://adguard.internal.lrlilford.com"
+
+  - name: Router
+    icon: router.png
+    description: Gateway Router
+    href: "https://router.internal.lrlilford.com"
+
+  - name: Portainer
+    icon: portainer.png
+    description: Container management
+    href: "https://portainer.internal.lrlilford.com"
+
+  - name: Prometheus
+    icon: prometheus.png
+    description: Metrics
+    href: "https://prometheus.internal.lrlilford.com"

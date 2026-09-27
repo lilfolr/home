@@ -1,0 +1,8 @@
+---
+# roles/homepage/handlers/main.yml
+
+- name: Restart homepage
+  community.docker.docker_container:
+    name: homepage
+    state: started
+    restart: true
